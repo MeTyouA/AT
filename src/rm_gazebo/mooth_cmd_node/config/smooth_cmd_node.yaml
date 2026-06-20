@@ -1,0 +1,18 @@
+smooth_cmd_node:
+  ros__parameters:
+    # 平滑模式，可选：
+    #   "average"     —— 滑动平均（更稳）
+    #   "exponential" —— 指数加权（更灵敏）
+    smooth_mode: "average"
+
+    # 滑动平均窗口大小（仅 average 模式生效）
+    # 越大越平滑，但响应越慢；建议 3~5
+    window_size: 5
+
+    # 指数加权系数（仅 exponential 模式生效）
+    # 越大越靠近最新指令，越灵敏；越小越平滑
+    alpha: 0.7
+
+    # 输出发布频率（Hz）
+    publish_rate: 20
+

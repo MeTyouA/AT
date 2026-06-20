@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4" project_name="Project">
+    <include path="RMUL2026_fang_车.xml"/>
+    <include path="RMUL2026车.xml"/>
+    <include path="attack_left.xml"/>
+    <include path="rmul2025_01.xml"/>
+    <include path="test1.xml"/>
+    <include path="test2.xml"/>
+    <include path="test3.xml"/>
+    <!-- Description of Node Models (used by Groot) -->
+    <TreeNodesModel>
+        <Action ID="ArmorToGoal">
+            <input_port name="target_message" default="{target_message}"/>
+            <input_port name="robot_pose" default="{robot_pose}"/>
+            <input_port name="offset_distance" default="2.0"/>
+            <input_port name="predict_time" default="0.5"/>
+            <input_port name="max_chase_distance" default="10.0"/>
+            <output_port name="goal_pose" default="{goal}"/>
+        </Action>
+        <Action ID="CancelNav2Goal" editable="true">
+            <input_port name="action_name" default="/navigate_to_pose"/>
+            <input_port name="timeout" default="1.0"/>
+        </Action>
+        <Action ID="CancelNavigation">
+            <input_port name="action_name" default="/action_name"/>
+        </Action>
+        <Action ID="ChaseGoal">
+            <input_port name="goal_pose" default="{attack_goal}"/>
+            <input_port name="action_name" default="/navigate_to_pose"/>
+            <input_port name="min_goal_distance" default="0.3"/>
+            <input_port name="max_resend_interval" default="2.0"/>
+            <input_port name="chase_timeout" default="15.0"/>
+            <input_port name="server_timeout" default="5.0"/>
+            <input_port name="stop_distance" default="1.5"/>
+        </Action>
+        <Condition ID="CheckHysteresisState">
+            <input_port name="state" default="{hysteresis_state}"/>
+            <input_port name="expected_state" default="HIGH"/>
+        </Condition>
+        <Condition ID="ConfidenceHysteresis">
+            <input_port name="target" default="{filtered_target}"/>
+            <input_port name="upper_threshold" default="0.4"/>
+            <input_port name="lower_threshold" default="0.3"/>
+            <input_port name="grace_period" default="1.5"/>
+            <input_port name="enable_hold_position" default="true"/>
+            <output_port name="current_confidence" default="{current_confidence}"/>
+            <output_port name="hysteresis_state" default="{hysteresis_state}"/>
+        </Condition>
+        <Action ID="EnemyPositionFilter" editable="true">
+            <input_port name="enemy_position" default="{armors}"/>
+            <input_port name="alpha" default="0.3"/>
+            <input_port name="max_distance" default="1.5"/>
+            <input_port name="history_size" default="5"/>
+            <input_port name="zero_threshold" default="0.1"/>
+            <input_port name="min_output_interval" default="0.1"/>
+            <input_port name="confidence_half_life" default="1.0"/>
+            <input_port name="min_confidence" default="0.0"/>
+            <output_port name="filtered_position" default="{filtered_position}"/>
+        </Action>
+        <Action ID="GetCurrentLocation" editable="true">
+            <output_port name="current_location" default="{current_location}"/>
+        </Action>
+        <Action ID="GetCurrentWaypoint">
+            <input_port name="waypoints" default="{waypoints}"/>
+            <input_port name="wait_times" default="{wait_times}"/>
+            <input_port name="wp_idx" default="{wp_idx}"/>
+            <output_port name="current_goal" default="{current_goal}"/>
+            <output_port name="current_wait_sec" default="{current_wait}"/>
+        </Action>
+        <Action ID="GetLocation">
+            <input_port name="topic_name" default="/odometry"/>
+            <output_port name="robot_location" default="{robot_pose}"/>
+        </Action>
+        <Action ID="HoldPosition">
+            <input_port name="target" default="{filtered_target}"/>
+            <input_port name="enabled" default="true"/>
+            <input_port name="robot_pose" default="{robot_pose}"/>
+            <output_port name="held_goal" default="{goal}"/>
+            <output_port name="is_holding" default="{is_holding}"/>
+        </Action>
+        <Action ID="IsAttacked" editable="true">
+            <input_port name="message" default="{robot_status}"/>
+        </Action>
+        <Action ID="IsDetectEnemy" editable="true">
+            <input_port name="message" default="{armors}"/>
+        </Action>
+        <Action ID="IsFriendOK" editable="true">
+            <input_port name="message" default="{robot_hp}"/>
+            <input_port name="friend_color" default="red"/>
+        </Action>
+        <Condition ID="IsGameTime" editable="true">
+            <input_port name="message" default="{game_status}"/>
+            <input_port name="game_progress" default="4"/>
+            <input_port name="lower_remain_time" default="0"/>
+            <input_port name="higher_remain_time" default="300"/>
+        </Condition>
+        <Condition ID="IsNav2GoalNear">
+            <input_port name="goal_pose" default="{current_goal_target}"/>
+            <input_port name="global_frame" default="map"/>
+            <input_port name="robot_frame" default="chassis"/>
+            <input_port name="distance_threshold" default="0.5"/>
+            <input_port name="tf_timeout" default="0.2"/>
+            <input_port name="feedback_topic" default="/navigate_to_pose/_action/feedback"/>
+            <input_port name="feedback_timeout" default="0.5"/>
+        </Condition>
+        <Condition ID="IsRobotInArea" editable="true">
+            <input_port name="robot_area_status" default="{robot_area_status}"/>
+            <input_port name="target_area_name"/>
+            <input_port name="target_area_type"/>
+        </Condition>
+        <Condition ID="IsStatusOK" editable="true">
+            <input_port name="message" default="{robot_status}"/>
+            <input_port name="hp_threshold" default="100"/>
+            <input_port name="heat_threshold" default="350"/>
+            <input_port name="shot_threshold" default="0"/>
+        </Condition>
+        <Condition ID="IsYawInRange">
+            <input_port name="robot_pose" default="{robot_pose}"/>
+            <input_port name="min_yaw_deg" default="-180.0"/>
+            <input_port name="max_yaw_deg" default="180.0"/>
+        </Condition>
+        <Action ID="LoadWaypoints">
+            <input_port name="waypoint_file"/>
+            <input_port name="frame_id" default="map"/>
+            <output_port name="waypoints" default="{waypoints}"/>
+            <output_port name="wait_times" default="{wait_times}"/>
+            <output_port name="total_waypoints" default="{total_wp}"/>
+            <output_port name="wp_idx" default="{wp_idx}"/>
+        </Action>
+        <Action ID="MoveAround" editable="true">
+            <input_port name="expected_nearby_goal_count" default="5"/>
+            <input_port name="expected_dis" default="0.3"/>
+            <input_port name="message" default="{current_location}"/>
+        </Action>
+        <Action ID="NextWaypoint">
+            <inout_port name="wp_idx" default="{wp_idx}"/>
+            <input_port name="total_waypoints" default="{total_wp}"/>
+        </Action>
+        <Action ID="PickBestArmor" editable="true">
+            <input_port name="armors_message" default="{armors}"/>
+            <output_port name="armor_message" default="{target_armor}"/>
+        </Action>
+        <Action ID="PubNav2Goal">
+            <input_port name="goal_pose"/>
+            <input_port name="frame_id" default="map"/>
+            <input_port name="min_pub_interval_ms"/>
+        </Action>
+        <Decorator ID="RateController">
+            <input_port name="hz">Rate</input_port>
+        </Decorator>
+        <Action ID="RobotControl">
+            <input_port name="stop_gimbal_scan" default="True"/>
+            <input_port name="chassis_spin_vel" default="0.0"/>
+            <input_port name="gimbal_big_yaw_vel" default="1.0"/>
+            <input_port name="gimbal_big_yaw_angle" default="0.785"/>
+            <input_port name="follow_gimbal_big" default="true"/>
+            <input_port name="chassis_vel_multi" default="1.0"/>
+            <input_port name="stop_chassis_vel_multi" default="True"/>
+            <input_port name="track_status" default="false"/>
+            <input_port name="perception_status" default="True"/>
+            <input_port name="start_gimbal_big_spin" default="False"/>
+        </Action>
+        <Action ID="SendGoal">
+            <input_port name="goal_pose" default="{best_goal}"/>
+            <input_port name="action_name" default="/navigate_to_pose"/>
+            <input_port name="min_goal_distance" default="0.5"/>
+            <input_port name="current_goal_id" default="{goal_id}"/>
+            <output_port name="reached_goal_id" default="{reached_goal_id}"/>
+        </Action>
+        <Action ID="SendNav2Goal" editable="true">
+            <input_port name="goal_pose" default="{current_goal_target}"/>
+            <input_port name="action_name" default="/navigate_to_pose"/>
+            <input_port name="min_distance" default="0.5"/>
+        </Action>
+        <Action ID="SetPosture" editable="true">
+            <input_port name="robot_posture_status" default="{robot_posture_status}"/>
+            <input_port name="override" default="False"/>
+        </Action>
+        <Action ID="SubAllRobotHP" editable="true">
+            <input_port name="topic_name" default="robot_hp"/>
+            <output_port name="robot_hp" default="{robot_hp}"/>
+        </Action>
+        <Action ID="SubArmors" editable="true">
+            <input_port name="topic_name" default="/detector/armors"/>
+            <output_port name="armors" default="{armors}"/>
+        </Action>
+        <Action ID="SubGameStatus" editable="true">
+            <input_port name="topic_name" default="game_status"/>
+            <output_port name="game_status" default="{game_status}"/>
+        </Action>
+        <Action ID="SubRobotAreaStatus" editable="true">
+            <input_port name="topic_name" default="/area_status"/>
+            <output_port name="robot_area_status" default="{robot_area_status}"/>
+        </Action>
+        <Action ID="SubRobotPosture" editable="true">
+            <input_port name="topic_name" default="sentry_posture_status"/>
+            <output_port name="posture" default="{robot_posture_status}"/>
+            <output_port name="posture_status" default="{posture_status}"/>
+        </Action>
+        <Action ID="SubRobotStatus" editable="true">
+            <input_port name="topic_name" default="robot_status"/>
+            <output_port name="robot_status" default="{robot_status}"/>
+        </Action>
+        <Action ID="Wait" editable="true">
+            <input_port name="duration" default="3"/>
+        </Action>
+        <Action ID="WaitDuration">
+            <input_port name="duration_sec" default="5.0"/>
+        </Action>
+        <Action ID="WaitUntilReached">
+            <input_port name="goal_pose"/>
+            <input_port name="tolerance" default="0.5"/>
+        </Action>
+    </TreeNodesModel>
+</root>

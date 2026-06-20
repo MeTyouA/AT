@@ -1,0 +1,7 @@
+<class_libraries>
+  <library path="fast_planner_smoother">
+    <class type="fast_planner::FastPlannerSmoother" base_class_type="nav2_core::Smoother">
+      <description>Fast-Planner 2D B-spline smoother with its internal ESDF map.</description>
+    </class>
+  </library>
+</class_libraries>

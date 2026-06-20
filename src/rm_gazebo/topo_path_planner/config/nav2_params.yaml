@@ -1,0 +1,12 @@
+# Nav2 Planner Server configuration for TopoPlanner plugin
+planner_server:
+  ros__parameters:
+    use_sim_time: true
+    planner_plugins: ["TopoPlanner"]
+    TopoPlanner:
+      plugin: "topo_path_planner::TopoPlannerPlugin"
+      sample_distance: 0.5      # Sampling point distance (meters)
+      max_samples: 500          # Maximum number of sample points
+      use_skeleton: true        # Use skeleton extraction (recommended)
+      enable_smoothing: true    # Enable path smoothing
+      smoothing_iterations: 5   # Smoothing iteration count

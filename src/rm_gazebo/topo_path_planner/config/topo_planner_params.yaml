@@ -1,0 +1,37 @@
+# Topo Path Planner Configuration
+
+topo_planner_node:
+  ros__parameters:
+    # 全局坐标系
+    global_frame: "map"
+
+    # 采样参数
+    sample_distance: 0.5      # 采样点间距（米）
+    max_samples: 500          # 最大采样点数
+
+    # 骨架提取
+    use_skeleton: true        # 是否使用骨架提取（推荐）
+
+    # 路径平滑
+    enable_smoothing: true    # 是否启用路径平滑
+    smoothing_iterations: 5   # 平滑迭代次数
+
+    # 可视化
+    publish_skeleton: true    # 发布骨架图像
+    visualization_rate: 2.0   # 可视化发布频率（Hz）
+
+    # 代价地图话题
+    costmap_topic: "global_costmap/costmap"  # 代价地图
+    # TF 变换名称
+    tf_name: "gimbal_yaw_fake"  # 机器人正方向TF名称
+    goal_pose_topic: "goal_pose_t"
+
+# 可见性检查参数
+visibility_checker:
+  max_height_diff: 0.3       # 最大允许高差（米）
+  step_size: 0.05            # 步进采样距离（米）
+
+# 拓扑图构建参数
+graph_builder:
+  kernel_size: 3             # 形态学核大小
+  enable_thinning: true      # 是否启用细化

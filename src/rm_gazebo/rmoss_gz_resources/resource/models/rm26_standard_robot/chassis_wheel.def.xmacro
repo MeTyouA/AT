@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<sdf version="1.7">
+    <!-- 以下部分为宏定义块的说明和注释 -->
+    <!-- <xmacro_define_value name="wheel_mass" value="0.4" /> -->
+    <!-- <xmacro_define_value name="wheel_width" value="0.0452" /> -->
+    <!-- <xmacro_define_value name="wheel_radius" value="0.0758" /> -->
+
+    <!-- 宏定义：chassis_wheel（底盘车轮） -->
+    <xmacro_define_block name="chassis_wheel" params="suffix parent pose axis wheel_collision_pose wheel_visual_pose">
+        <!-- 定义车轮关节 -->
+        <joint name="chassis_to_wheel${suffix}" type="revolute">
+            <!-- 设置关节的相对位姿，此处 pose 参数传入的是关节相对于父链（例如 chassis）的位姿 -->
+            <pose relative_to='${parent}'>${pose}</pose>
+            <!-- 定义关节的父链，即连接该关节的底盘 -->
+            <parent>${parent}</parent>
+            <!-- 定义关节的子链，即该车轮 -->
+            <child>wheel${suffix}</child>
+            <axis>
+                <!-- 设定旋转轴，此处固定为绕 Y 轴旋转 -->
+                <xyz>${axis}</xyz>
+                <limit>
+                	<!-- 定义关节的旋转角度 -->
+					<lower>-1.79769e+308</lower>
+					<upper>1.79769e+308</upper>                	
+                    <!-- 定义关节允许的最大力矩和角速度 -->
+                    <effort>1e+10</effort>
+                    <velocity>1e+10</velocity>
+                </limit>
+            </axis>
+        </joint>
+
+        <!-- 定义车轮链接 -->
+        <link name="wheel${suffix}">
+            <!-- 车轮链接的位姿，相对于刚创建的车轮关节 -->
+            <pose relative_to="chassis_to_wheel${suffix}">0 0 0 0 0 0</pose>
+            <inertial>
+                <!-- 设置惯性属性的位姿，此处设定为绕 X 轴旋转 90°（1.5707 弧度），可根据需要调整 -->
+                <pose>0 0 0 0 0 0</pose>
+                <!-- 使用宏块定义圆柱体惯性，这里将质量设为 0.4，半径 0.07，长度 0.01
+                     若想匹配原始质量（0.13）可修改 m 参数 -->
+                <xmacro_block name="inertia_cylinder" m="0.4" r="0.07" l="0.01"/>
+            </inertial>
+            <visual name="wheel${suffix}_visual">
+            	<pose>${wheel_visual_pose}</pose>
+                <!-- 使用宏块加载视觉模型，此处加载的 mesh 文件为示例文件，
+                     如果需要使用原始的 package://sentry_1/meshes/wheel_0.STL，可修改 uri 参数 -->
+                <xmacro_block name="geometry_mesh" uri="model://rmu26_standard_robot/meshes/wheel.STL"/>
+            </visual>
+            <collision name="wheel${suffix}_collision">
+                <!-- 定义碰撞模型的位姿，通常与视觉模型保持一致 -->
+                <pose>${wheel_collision_pose}</pose>
+                <!-- 使用宏块加载碰撞几何体，这里使用圆柱体几何，
+                     若希望使用 mesh 模型，则可替换为 geometry_mesh 并修改 uri -->
+                <xmacro_block name="geometry_cylinder" r="0.07" l="0.01"/>
+                <surface>
+                    <friction>
+                        <ode>
+                            <!-- 设置摩擦系数 -->
+                            <mu>0.2</mu>
+                            <mu2>0.2</mu2>
+                        </ode>
+                    </friction>
+                </surface>
+            </collision>
+        </link>
+    </xmacro_define_block>
+</sdf>
+

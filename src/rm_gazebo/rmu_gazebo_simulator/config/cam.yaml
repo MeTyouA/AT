@@ -1,0 +1,7 @@
+/**:
+  ros__parameters:
+    world_name: "default"
+    gz_camera_image_topic: 
+    gz_camera_info_topic: 
+    camera_name:
+    

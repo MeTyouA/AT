@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4"
+      main_tree_to_execute="test2">
+  <BehaviorTree ID="test2">
+    <Sequence name="HomeNavigation">
+      <CancelNavigation action_name="/navigate_to_pose"/>
+      <RobotControl stop_gimbal_scan="True"
+                    chassis_spin_vel="0.0"
+                    gimbal_big_yaw_vel="0.0"
+                    gimbal_big_yaw_angle="0.0"
+                    follow_gimbal_big="false"
+                    chassis_vel_multi="1.0"
+                    stop_chassis_vel_multi="True"
+                    track_status="false"
+                    perception_status="True"
+                    start_gimbal_big_spin="False"/>
+      <LoadWaypoints waypoint_file="/home/sentry/Desktop/ros_ws/csv/过起伏.csv"
+                     frame_id="map"
+                     waypoints="{waypoints_home}"
+                     wait_times="{wait_times_home}"
+                     total_waypoints="{total_wp_home}"
+                     wp_idx="{wp_idx_home}"/>
+      <KeepRunningUntilFailure name="HomeWaypointLoop">
+        <Sequence name="NavigateHomeWaypoint">
+          <GetCurrentWaypoint waypoints="{waypoints_home}"
+                              wait_times="{wait_times_home}"
+                              wp_idx="{wp_idx_home}"
+                              current_goal="{current_goal_home}"
+                              current_wait_sec="{current_wait_home}"/>
+          <Sequence name="PublishAndNavigateHome">
+            <PubNav2Goal goal_pose="{current_goal_home}"
+                         frame_id="map"
+                         min_pub_interval_ms="500"/>
+            <WaitUntilReached goal_pose="{current_goal_home}"
+                              tolerance="0.5"/>
+          </Sequence>
+          <WaitDuration duration_sec="{current_wait_home}"/>
+          <NextWaypoint wp_idx="{wp_idx_home}"
+                        total_waypoints="{total_wp_home}"/>
+        </Sequence>
+      </KeepRunningUntilFailure>
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="CancelNavigation">
+      <input_port name="action_name"
+                  default="/action_name"/>
+    </Action>
+    <Action ID="GetCurrentWaypoint">
+      <input_port name="waypoints"
+                  default="{waypoints}"/>
+      <input_port name="wait_times"
+                  default="{wait_times}"/>
+      <input_port name="wp_idx"
+                  default="{wp_idx}"/>
+      <output_port name="current_goal"
+                   default="{current_goal}"/>
+      <output_port name="current_wait_sec"
+                   default="{current_wait}"/>
+    </Action>
+    <Action ID="LoadWaypoints">
+      <input_port name="waypoint_file"/>
+      <input_port name="frame_id"
+                  default="map"/>
+      <output_port name="waypoints"
+                   default="{waypoints}"/>
+      <output_port name="wait_times"
+                   default="{wait_times}"/>
+      <output_port name="total_waypoints"
+                   default="{total_wp}"/>
+      <output_port name="wp_idx"
+                   default="{wp_idx}"/>
+    </Action>
+    <Action ID="NextWaypoint">
+      <inout_port name="wp_idx"
+                  default="{wp_idx}"/>
+      <input_port name="total_waypoints"
+                  default="{total_wp}"/>
+    </Action>
+    <Action ID="PubNav2Goal">
+      <input_port name="goal_pose"/>
+      <input_port name="frame_id"
+                  default="map"/>
+      <input_port name="min_pub_interval_ms"/>
+    </Action>
+    <Action ID="RobotControl">
+      <input_port name="stop_gimbal_scan"
+                  default="True"/>
+      <input_port name="chassis_spin_vel"
+                  default="0.0"/>
+      <input_port name="gimbal_big_yaw_vel"
+                  default="1.0"/>
+      <input_port name="gimbal_big_yaw_angle"
+                  default="0.785"/>
+      <input_port name="follow_gimbal_big"
+                  default="true"/>
+      <input_port name="chassis_vel_multi"
+                  default="1.0"/>
+      <input_port name="stop_chassis_vel_multi"
+                  default="True"/>
+      <input_port name="track_status"
+                  default="false"/>
+      <input_port name="perception_status"
+                  default="True"/>
+      <input_port name="start_gimbal_big_spin"
+                  default="False"/>
+    </Action>
+    <Action ID="WaitDuration">
+      <input_port name="duration_sec"
+                  default="5.0"/>
+    </Action>
+    <Action ID="WaitUntilReached">
+      <input_port name="goal_pose"/>
+      <input_port name="tolerance"
+                  default="0.5"/>
+    </Action>
+  </TreeNodesModel>
+
+</root>
