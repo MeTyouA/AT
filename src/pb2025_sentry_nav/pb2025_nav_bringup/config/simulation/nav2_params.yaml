@@ -76,7 +76,7 @@ super_lio:
     lio.sensor.maxrange: 30.0                                 # 最大测量范围，单位m
     lio.sensor.filter_rate: 3                                 # 3 表示每 3 个点保留 1 个，仿真 VLP-32 单帧 ~30k 点
     lio.sensor.voxel_fliter_size: 0.5                         # PCL VoxelGrid 体素大小（米）
-    lio.sensor.point_time_scale: 1.0                          # 点时间戳缩放，0 表示不缩放；如果点云时间戳单位不是秒，可以通过这个参数调整到秒，例如 Livox 点云的时间戳单位是微秒，point_time_scale 就设置为 1e-6
+    lio.sensor.point_time_scale: 0.0                          # 仿真 velodyne_points 的 time 字段为 0~0.1s 合成值，但话题发布约 20Hz（~0.05s/帧）。设 0 关闭点级去畸变，避免 super_lio 用错误时间跨度做运动补偿导致点云扭曲跟车旋转。真实雷达且 time 字段可靠时恢复为 1.0
     lio.sensor.gravity_norm: 9.81                             # Gazebo 默认重力
     lio.sensor.imu_type: 1
     lio.sensor.imu_na: 0.1
@@ -84,11 +84,11 @@ super_lio:
     lio.sensor.imu_nba: 0.0001
     lio.sensor.imu_nbg: 0.0001
 
-lio.extrinsic.lidar_imu: [-0.011, -0.02329, 0.04412,
+    lio.extrinsic.lidar_imu: [0.0, 0.0, 0.03,
                           1.0, 0.0, 0.0,
                           0.0, 1.0, 0.0,
-                          0.0, 0.0, 1.0]                 # 仿真里 lidar 和 IMU 共享 front_mid360 link，lidar 相对 IMU 仅 +0.03m z 偏置（来自 mid360 sdf）
-    lio.extrinsic.odom_robo: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]   # [x, y, z, roll, pitch, yaw]，描述的是 "传感器模块"与"机器人底盘" 的关系；稳定版本下建议保留 0，仅用于 super_lio 的机器人外参
+                          0.0, 0.0, 1.0]                 # 仿真：LiDAR 与 IMU 共享 front_mid360 link，仅 +0.03m z 偏置（来自 mid360.sdf.xmacro: <pose>0 0 0.03 0 0 0</pose>）
+    lio.extrinsic.odom_robo: [0.0, 0.0, 0.15, 0.0, 53.0, 180.0]   # IMU→机器人底盘的外参。IMU 前倾 53° 且后向(Yaw=π)，用 roll=0°, pitch=53°, yaw=180° 转平并转向前方
 
     lio.hash_map.hash_capacity: 2000000
     lio.hash_map.vox_resolution: 0.5
@@ -193,10 +193,10 @@ loam_interface:
     # state_estimation_topic: "aft_mapped_to_init"
     # registered_scan_topic: "cloud_registered"
     # super_lio 的话题
-    state_estimation_topic: "lio/odom"
+    state_estimation_topic: "lio/robo/odom"       # robot帧odom（已通过odom_robo去倾斜）
     registered_scan_topic: "lio/cloud_world"
     odom_frame: "odom"
-    base_frame: "base_footprint"
+    base_frame: "front_mid360"                    # 与lidar_frame相同=identity lookup，避免TF翻倍倾斜
     lidar_frame: "front_mid360"
 
 sensor_scan_generation:
@@ -205,6 +205,7 @@ sensor_scan_generation:
     lidar_frame: "front_mid360"
     base_frame: "base_footprint"
     robot_base_frame: "gimbal_big"
+    odom_in_body_frame: true           # 输入odom已在机器人坐标系(水平)，不需要再加TF旋转
 
 terrain_analysis_node:
   ros__parameters:

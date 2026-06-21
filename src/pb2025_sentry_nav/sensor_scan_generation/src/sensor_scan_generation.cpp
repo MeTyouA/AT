@@ -26,10 +26,12 @@ SensorScanGenerationNode::SensorScanGenerationNode(const rclcpp::NodeOptions & o
   this->declare_parameter<std::string>("lidar_frame", "");
   this->declare_parameter<std::string>("base_frame", "");
   this->declare_parameter<std::string>("robot_base_frame", "");
+  this->declare_parameter<bool>("odom_in_body_frame", false);
 
   this->get_parameter("lidar_frame", lidar_frame_);
   this->get_parameter("base_frame", base_frame_);
   this->get_parameter("robot_base_frame", robot_base_frame_);
+  this->get_parameter("odom_in_body_frame", odom_in_body_frame_);
 
   tf_buffer_ = std::make_unique<tf2_ros::Buffer>(this->get_clock());
   tf_listener_ = std::make_unique<tf2_ros::TransformListener>(*tf_buffer_);
@@ -72,8 +74,16 @@ void SensorScanGenerationNode::laserCloudAndOdometryHandler(
   tf_lidar_to_robot_base_ = getTransform(lidar_frame_, robot_base_frame_, pcd_msg->header.stamp);
   tf_lidar_to_chassis = getTransform(lidar_frame_, base_frame_, pcd_msg->header.stamp);
 
-  tf_odom_to_chassis = tf_odom_to_lidar * tf_lidar_to_chassis;
-  tf_odom_to_robot_base = tf_odom_to_lidar * tf_lidar_to_robot_base_;
+  if (odom_in_body_frame_) {
+    // odometry already in robot body frame (level); only apply translation offset from TF
+    tf_odom_to_chassis.setOrigin((tf_odom_to_lidar * tf_lidar_to_chassis).getOrigin());
+    tf_odom_to_chassis.setRotation(tf_odom_to_lidar.getRotation());
+    tf_odom_to_robot_base.setOrigin((tf_odom_to_lidar * tf_lidar_to_robot_base_).getOrigin());
+    tf_odom_to_robot_base.setRotation(tf_odom_to_lidar.getRotation());
+  } else {
+    tf_odom_to_chassis = tf_odom_to_lidar * tf_lidar_to_chassis;
+    tf_odom_to_robot_base = tf_odom_to_lidar * tf_lidar_to_robot_base_;
+  }
 
   publishTransform(
     tf_odom_to_chassis, odometry_msg->header.frame_id, base_frame_, pcd_msg->header.stamp);

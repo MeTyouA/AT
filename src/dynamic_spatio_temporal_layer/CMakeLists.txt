@@ -19,6 +19,7 @@ find_package(Boost REQUIRED COMPONENTS thread)
 find_package(pcl_conversions REQUIRED)
 find_package(laser_geometry REQUIRED)
 find_package(message_filters REQUIRED)
+find_package(spatio_temporal_voxel_layer REQUIRED)
 
 set(STVL_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../spatio_temporal_voxel_layer/spatio_temporal_voxel_layer")
 
@@ -34,17 +35,16 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   ${OpenVDB_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}
   ${laser_geometry_INCLUDE_DIRS}
+  ${spatio_temporal_voxel_layer_INCLUDE_DIRS}
   /opt/ros/humble/include/pcl_conversions
   /opt/ros/humble/include/pcl_msgs
-  /opt/ros/humble/include/spatio_temporal_voxel_layer
-  /opt/ros/humble/include/sensor_msgs
 )
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
   ${OpenVDB_LIBRARIES}
-  /opt/ros/humble/lib/libspatio_temporal_voxel_layer_core.so
+  ${spatio_temporal_voxel_layer_LIBRARIES}
 )
 
 ament_target_dependencies(${PROJECT_NAME} PUBLIC
